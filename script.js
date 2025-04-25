@@ -33,7 +33,7 @@ function Gameboard() {
         console.log(boardWithCellValues);
     }
 
-    return { getBoard, dropMark, printBoard };
+    return {getBoard, dropMark, printBoard};
 }
 
 /*
@@ -53,10 +53,48 @@ function Cell() {
     // Get value of the cell through closure
     const getValue = () => value;
 
-    return { addMark, getValue };
+    return {addMark, getValue};
 }
 
+// GameController controls the flow and state of the game
+function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
+    const board = Gameboard();
 
-// Player object
+    const players = [
+        {name: playerOne, mark: 'X'},
+        {name: playerTwo, mark: 'O'}
+    ];
 
-// GameController object
+    let activePlayer = players[0];
+
+    const switchPlayerTurn = () => {
+        activePlayer = activePlayer === players[0] ? players[1] : players[0];
+    }
+
+    const getActivePlayer = () => activePlayer;
+
+    const printNewRound = () => {
+        board.printBoard();
+        console.log(`${getActivePlayer().name}'s turn.`);
+    }
+
+    const playRound = (row, column) => {
+        // Drop a mark for the current player
+        console.log(`Dropping ${getActivePlayer().name}'s mark into cell ${row, column}...`);
+        board.dropMark(row, column, getActivePlayer().mark);
+
+        // Winning player logic
+
+        // Switch player turn
+        switchPlayerTurn();
+        printNewRound();
+    }
+
+    // Initial play game message
+    printNewRound();
+
+    return {playRound, getActivePlayer};
+}
+
+const game = GameController();
+game.playRound();
