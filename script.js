@@ -33,7 +33,24 @@ function Gameboard() {
         console.log(boardWithCellValues);
     }
 
-    return {getBoard, dropMark, printBoard};
+    // Render board in the DOM/display
+    const renderBoard = () => {
+        const boardDisplay = document.querySelector('.board');
+
+        boardDisplay.innerHTML = '';
+
+        const cells = board.flat().map((cell) => cell.getValue());
+
+        for (const cell of cells) {
+            const cellDisplay = document.createElement('div');
+            cellDisplay.textContent = cell;
+            cellDisplay.classList.add('cell');
+
+            boardDisplay.appendChild(cellDisplay);
+        }
+    }
+
+    return {getBoard, dropMark, printBoard, renderBoard};
 }
 
 /*
@@ -111,6 +128,7 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
 
     const printNewRound = () => {
         board.printBoard();
+        board.renderBoard();
         console.log(`${getActivePlayer().name}'s turn.`);
     }
 
@@ -122,9 +140,11 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
         // Winning player logic
         if (GetWinner(board.getBoard()) !== null && GetWinner(board.getBoard()) !== 'tie') {
             board.printBoard();
+            board.renderBoard();
             console.log(`${getActivePlayer().name} wins!`);
         } else if (GetWinner(board.getBoard()) === 'tie') {
             board.printBoard();
+            board.renderBoard();
             console.log('It\'s a tie!');
         } else {
             // Switch player turn
