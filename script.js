@@ -56,6 +56,42 @@ function Cell() {
     return {addMark, getValue};
 }
 
+// Check the board each round for a winning combination and return the winner
+function GetWinner(board) {
+
+    const winningCombinations = [
+        [[0,0], [0,1], [0,2]],
+        [[1,0], [1,1], [1,2]],
+        [[2,0], [2,1], [2,2]],
+        [[0,0], [1,0], [2,0]],
+        [[0,1], [1,1], [2,1]],
+        [[0,2], [1,2], [2,2]],
+        [[0,0], [1,1], [2,2]],
+        [[0,2], [1,1], [2,0]]
+    ];
+
+    for (const combination of winningCombinations) {
+        const [cell1, cell2, cell3] = combination;
+
+        const value1 = board[cell1[0]][cell1[1]].getValue();
+        const value2 = board[cell2[0]][cell2[1]].getValue();
+        const value3 = board[cell3[0]][cell3[1]].getValue();
+
+        if (value1 !== 0 && value1 === value2 && value1 === value3) {
+            return value1; // Returns 'X' or 'O' to then decide the winner
+        }
+    }
+
+    // Get all values of the board in a flatten, mapped array to check for empty cells
+    const allCellValues = board.flat().map(cell => cell.getValue());
+
+    if (!allCellValues.includes(0)) {
+        return 'tie';
+    }
+
+    return null; // Return nothing until there are still empty cells
+}
+
 // GameController controls the flow and state of the game
 function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
     const board = Gameboard();
@@ -84,10 +120,17 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
         board.dropMark(row, column, getActivePlayer().mark);
 
         // Winning player logic
-
-        // Switch player turn
-        switchPlayerTurn();
-        printNewRound();
+        if (GetWinner(board.getBoard()) !== null && GetWinner(board.getBoard()) !== 'tie') {
+            board.printBoard();
+            console.log(`${getActivePlayer().name} wins!`);
+        } else if (GetWinner(board.getBoard()) === 'tie') {
+            board.printBoard();
+            console.log('It\'s a tie!');
+        } else {
+            // Switch player turn
+            switchPlayerTurn();
+            printNewRound();
+        }
     }
 
     // Initial play game message
@@ -96,5 +139,10 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
     return {playRound, getActivePlayer};
 }
 
+
 const game = GameController();
-game.playRound();
+game.playRound(0, 0);
+game.playRound(2, 2);
+game.playRound(0, 1);
+game.playRound(1, 1);
+game.playRound(0, 2);
