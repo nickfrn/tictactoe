@@ -32,7 +32,6 @@ function Gameboard() {
         for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 3; col++) {
                 const cellDiv = document.createElement('div');
-                
                 cellDiv.classList.add('cell');
                 cellDiv.dataset.row = row;
                 cellDiv.dataset.col = col;
@@ -46,8 +45,6 @@ function Gameboard() {
                 boardDisplay.appendChild(cellDiv);
             }
         }
-        // DELETE WHEN DONE
-        console.log(board);
     }
 
     return {getBoard, placeMark, renderBoard};
@@ -70,9 +67,9 @@ function GetWinner(board) {
     for (const combination of winningCombinations) {
         const [cell1, cell2, cell3] = combination;
 
-        const value1 = board[cell1[0]][cell1[1]].getValue();
-        const value2 = board[cell2[0]][cell2[1]].getValue();
-        const value3 = board[cell3[0]][cell3[1]].getValue();
+        const value1 = board[cell1[0]][cell1[1]];
+        const value2 = board[cell2[0]][cell2[1]];
+        const value3 = board[cell3[0]][cell3[1]];
 
         if (value1 !== 0 && value1 === value2 && value1 === value3) {
             return value1; // Returns 'X' or 'O' to then decide the winner
@@ -80,7 +77,7 @@ function GetWinner(board) {
     }
 
     // Get all values of the board in a flatten, mapped array to check for empty cells
-    const allCellValues = board.flat().map(cell => cell.getValue());
+    const allCellValues = board.flat().map(cell => cell);
 
     if (!allCellValues.includes(0)) {
         return 'tie';
@@ -126,9 +123,10 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
         }
     }
 
+    const container = document.querySelector('.container');
     const boardDiv = document.querySelector('.board');
 
-    boardDiv.addEventListener('click', (event) => {
+    const handleBoardClick = (event) => {
         if (event.target.classList.contains('cell')) {
             if (event.target.textContent === '') {
                 event.target.textContent = getActivePlayer().mark;
@@ -138,11 +136,29 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
 
                 board.getBoard()[cellRow][cellCol] = getActivePlayer().mark;
 
+                const winnerCheck = GetWinner(board.getBoard());
+                const result = document.createElement('h1');
+                result.classList.add('result');
+
+                if (winnerCheck !== null && winnerCheck !== 'tie') {
+                    result.textContent = `${getActivePlayer().name} Wins!`;
+                    container.appendChild(result);
+
+                    boardDiv.removeEventListener('click', handleBoardClick);
+                } else if (winnerCheck === 'tie') {
+                    result.textContent = 'It\'s a tie!';
+                    container.appendChild(result);
+
+                    boardDiv.removeEventListener('click', handleBoardClick);
+                }
+                
                 switchPlayerTurn();
                 renderNewBoard();
             }
         }
-    });
+    }
+
+    boardDiv.addEventListener('click', handleBoardClick);
 
     // Initialize board
     renderNewBoard();
