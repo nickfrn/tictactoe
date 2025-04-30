@@ -4,33 +4,23 @@ function Gameboard() {
     const columns = 3;
     const board = [];
 
-    /* 
-    Create 2d array to represent the game board
-    by pushing 3 cells to each row 
-    */
+    //* Create 2d array to represent the game board
     for (let i = 0; i < rows; i++) {
         board[i] = [];
 
         for (let j = 0; j < columns; j++) {
-            board[i].push(Cell());
+            board[i].push(0);
         }
     }
 
     // Get current board
     const getBoard = () => board;
 
-    // Drop a player's mark on a free cell
-    const dropMark = (row, column, player) => {
+    // Place a player's mark on a free cell
+    const placeMark = (row, column, player) => {
         if (board[row][column].getValue() === 0) {
             board[row][column].addMark(player);
         }
-    }
-
-    // Print board to console until UI is built
-    const printBoard = () => {
-        const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()));
-
-        console.log(boardWithCellValues);
     }
 
     // Render board in the DOM/display
@@ -39,18 +29,26 @@ function Gameboard() {
 
         boardDisplay.innerHTML = '';
 
-        const cells = board.flat().map((cell) => cell.getValue());
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                const cellDiv = document.createElement('div');
+                
+                cellDiv.classList.add('cell');
+                cellDiv.dataset.row = board[row];
+                cellDiv.dataset.col = board[col];
 
-        for (const cell of cells) {
-            const cellDisplay = document.createElement('div');
-            cellDisplay.textContent = cell;
-            cellDisplay.classList.add('cell');
+                if (board[row][col] === 0) {
+                    cellDiv.textContent = '';
+                } else {
+                    cellDiv.textContent = cell;
+                }
 
-            boardDisplay.appendChild(cellDisplay);
+                boardDisplay.appendChild(cellDiv);
+            }
         }
     }
 
-    return {getBoard, dropMark, printBoard, renderBoard};
+    return {getBoard, placeMark, renderBoard};
 }
 
 /*
@@ -59,19 +57,19 @@ Cell represents one "square" on the board and can have one of
 X: Player One's mark,
 O: Player 2's mark
 */
-function Cell() {
-    let value = 0;
+// function Cell() {
+//     let value = 0;
 
-    // Accept a player's mark to update the value of the cell
-    const addMark = (player) => {
-        value = player;
-    };
+//     // Accept a player's mark to update the value of the cell
+//     const addMark = (player) => {
+//         value = player;
+//     };
 
-    // Get value of the cell through closure
-    const getValue = () => value;
+//     // Get value of the cell through closure
+//     const getValue = () => value;
 
-    return {addMark, getValue};
-}
+//     return {addMark, getValue};
+// }
 
 // Check the board each round for a winning combination and return the winner
 function GetWinner(board) {
@@ -126,43 +124,37 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
 
     const getActivePlayer = () => activePlayer;
 
-    const printNewRound = () => {
-        board.printBoard();
+    const renderNewBoard = () => {
         board.renderBoard();
-        console.log(`${getActivePlayer().name}'s turn.`);
     }
 
     const playRound = (row, column) => {
-        // Drop a mark for the current player
-        console.log(`Dropping ${getActivePlayer().name}'s mark into cell ${row, column}...`);
-        board.dropMark(row, column, getActivePlayer().mark);
+        // Place a mark for the current player
+        board.placeMark(row, column, getActivePlayer().mark);
 
         // Winning player logic
         if (GetWinner(board.getBoard()) !== null && GetWinner(board.getBoard()) !== 'tie') {
-            board.printBoard();
             board.renderBoard();
             console.log(`${getActivePlayer().name} wins!`);
         } else if (GetWinner(board.getBoard()) === 'tie') {
-            board.printBoard();
             board.renderBoard();
             console.log('It\'s a tie!');
         } else {
             // Switch player turn
             switchPlayerTurn();
-            printNewRound();
+            renderNewBoard();
         }
     }
 
     // Initial play game message
-    printNewRound();
+    renderNewBoard();
 
     return {playRound, getActivePlayer};
 }
 
+// Let users place their mark on the displayed board
+function AddPlayerMark(board) {
+
+}
 
 const game = GameController();
-game.playRound(0, 0);
-game.playRound(2, 2);
-game.playRound(0, 1);
-game.playRound(1, 1);
-game.playRound(0, 2);
