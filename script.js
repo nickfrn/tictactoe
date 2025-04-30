@@ -17,9 +17,9 @@ function Gameboard() {
     const getBoard = () => board;
 
     // Place a player's mark on a free cell
-    const placeMark = (row, column, player) => {
-        if (board[row][column].getValue() === 0) {
-            board[row][column].addMark(player);
+    const placeMark = (row, column, playerMark) => {
+        if (board[row][column] === 0) {
+            board[row][column] = playerMark;
         }
     }
 
@@ -34,42 +34,24 @@ function Gameboard() {
                 const cellDiv = document.createElement('div');
                 
                 cellDiv.classList.add('cell');
-                cellDiv.dataset.row = board[row];
-                cellDiv.dataset.col = board[col];
+                cellDiv.dataset.row = row;
+                cellDiv.dataset.col = col;
 
                 if (board[row][col] === 0) {
                     cellDiv.textContent = '';
                 } else {
-                    cellDiv.textContent = cell;
+                    cellDiv.textContent = board[row][col];
                 }
 
                 boardDisplay.appendChild(cellDiv);
             }
         }
+        // DELETE WHEN DONE
+        console.log(board);
     }
 
     return {getBoard, placeMark, renderBoard};
 }
-
-/*
-Cell represents one "square" on the board and can have one of
-0: no mark is in the square,
-X: Player One's mark,
-O: Player 2's mark
-*/
-// function Cell() {
-//     let value = 0;
-
-//     // Accept a player's mark to update the value of the cell
-//     const addMark = (player) => {
-//         value = player;
-//     };
-
-//     // Get value of the cell through closure
-//     const getValue = () => value;
-
-//     return {addMark, getValue};
-// }
 
 // Check the board each round for a winning combination and return the winner
 function GetWinner(board) {
@@ -135,10 +117,8 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
         // Winning player logic
         if (GetWinner(board.getBoard()) !== null && GetWinner(board.getBoard()) !== 'tie') {
             board.renderBoard();
-            console.log(`${getActivePlayer().name} wins!`);
         } else if (GetWinner(board.getBoard()) === 'tie') {
             board.renderBoard();
-            console.log('It\'s a tie!');
         } else {
             // Switch player turn
             switchPlayerTurn();
@@ -146,7 +126,25 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
         }
     }
 
-    // Initial play game message
+    const boardDiv = document.querySelector('.board');
+
+    boardDiv.addEventListener('click', (event) => {
+        if (event.target.classList.contains('cell')) {
+            if (event.target.textContent === '') {
+                event.target.textContent = getActivePlayer().mark;
+
+                let cellRow = event.target.dataset.row;
+                let cellCol = event.target.dataset.col;
+
+                board.getBoard()[cellRow][cellCol] = getActivePlayer().mark;
+
+                switchPlayerTurn();
+                renderNewBoard();
+            }
+        }
+    });
+
+    // Initialize board
     renderNewBoard();
 
     return {playRound, getActivePlayer};
@@ -157,4 +155,4 @@ function AddPlayerMark(board) {
 
 }
 
-const game = GameController();
+GameController();
