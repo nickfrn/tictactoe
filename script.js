@@ -87,8 +87,7 @@ function GetWinner(board) {
 }
 
 // GameController controls the flow and state of the game
-function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
-    const board = Gameboard();
+function GameController(board, playerOne = 'Player 1', playerTwo = 'Player 2') {
 
     const players = [
         {name: playerOne, mark: 'X'},
@@ -123,25 +122,36 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
         }
     }
 
+    // Initialize board
+    renderNewBoard();
+
+    return {playRound, getActivePlayer, switchPlayerTurn, renderNewBoard};
+}
+
+function DisplayController() {
+    let board = Gameboard();
+    let game = GameController(board);
+
     const container = document.querySelector('.container');
     const boardDiv = document.querySelector('.board');
+    const resetBtn = document.querySelector('#reset');
+    const result = document.createElement('h1');
+    result.classList.add('result');
 
     const handleBoardClick = (event) => {
         if (event.target.classList.contains('cell')) {
             if (event.target.textContent === '') {
-                event.target.textContent = getActivePlayer().mark;
+                event.target.textContent = game.getActivePlayer().mark;
 
                 let cellRow = event.target.dataset.row;
                 let cellCol = event.target.dataset.col;
 
-                board.getBoard()[cellRow][cellCol] = getActivePlayer().mark;
+                board.getBoard()[cellRow][cellCol] = game.getActivePlayer().mark;
 
                 const winnerCheck = GetWinner(board.getBoard());
-                const result = document.createElement('h1');
-                result.classList.add('result');
-
+                
                 if (winnerCheck !== null && winnerCheck !== 'tie') {
-                    result.textContent = `${getActivePlayer().name} Wins!`;
+                    result.textContent = `${game.getActivePlayer().name} Wins!`;
                     container.appendChild(result);
 
                     boardDiv.removeEventListener('click', handleBoardClick);
@@ -152,23 +162,22 @@ function GameController(playerOne = 'Player 1', playerTwo = 'Player 2') {
                     boardDiv.removeEventListener('click', handleBoardClick);
                 }
                 
-                switchPlayerTurn();
-                renderNewBoard();
+                game.switchPlayerTurn();
+                game.renderNewBoard();
             }
         }
     }
 
     boardDiv.addEventListener('click', handleBoardClick);
+    resetBtn.addEventListener('click', () => {
+        if (result.textContent !== '') {
+            result.textContent = '';
+        }
+        board = Gameboard();
+        game = GameController(board);
 
-    // Initialize board
-    renderNewBoard();
-
-    return {playRound, getActivePlayer};
+        boardDiv.addEventListener('click', handleBoardClick);
+    });
 }
 
-// Let users place their mark on the displayed board
-function AddPlayerMark(board) {
-
-}
-
-GameController();
+DisplayController();
