@@ -8,9 +8,22 @@
     <title>Tic Tac Toe</title>
 </head>
 <body>
+    <dialog id="namesDialog">
+        <form>
+            <label for="player1">Player 1 name:</label>
+            <input type="text" name="player1" id="p1">
+
+            <label for="player2">Player 2 name:</label>
+            <input type="text" name="player2" id="p2">
+
+            <button id="confirm">Confirm</button>
+        </form>
+    </dialog>
+
     <div class="container">
+        <h1></h1>
         <div class="board"></div>
-        <button type="button" id="reset">Reset</button>
+        <button id="reset">Reset</button>
     </div>
 </body>
 </html>
