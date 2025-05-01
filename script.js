@@ -129,14 +129,32 @@ function GameController(board, playerOne = 'Player 1', playerTwo = 'Player 2') {
 }
 
 function DisplayController() {
-    let board = Gameboard();
-    let game = GameController(board);
-
-    const container = document.querySelector('.container');
     const boardDiv = document.querySelector('.board');
     const resetBtn = document.querySelector('#reset');
-    const result = document.createElement('h1');
+    const namesDialog = document.querySelector('#namesDialog');
+    const confirmBtn = document.querySelector('#confirm');
+    const result = document.querySelector('h1');
     result.classList.add('result');
+
+    if (!sessionStorage.getItem('player1')) {
+        namesDialog.showModal();
+    } 
+
+    confirmBtn.addEventListener('click', () => {
+        player1 = document.querySelector('#p1').value;
+        player2 = document.querySelector('#p2').value;
+
+        sessionStorage.setItem('player1', player1);
+        sessionStorage.setItem('player2', player2);
+
+        namesDialog.close();
+    });
+
+    const playerOne = sessionStorage.getItem('player1');
+    const playerTwo = sessionStorage.getItem('player2');
+
+    let board = Gameboard();
+    let game = GameController(board, playerOne, playerTwo);
 
     const handleBoardClick = (event) => {
         if (event.target.classList.contains('cell')) {
@@ -152,12 +170,10 @@ function DisplayController() {
                 
                 if (winnerCheck !== null && winnerCheck !== 'tie') {
                     result.textContent = `${game.getActivePlayer().name} Wins!`;
-                    container.appendChild(result);
 
                     boardDiv.removeEventListener('click', handleBoardClick);
                 } else if (winnerCheck === 'tie') {
                     result.textContent = 'It\'s a tie!';
-                    container.appendChild(result);
 
                     boardDiv.removeEventListener('click', handleBoardClick);
                 }
@@ -169,12 +185,13 @@ function DisplayController() {
     }
 
     boardDiv.addEventListener('click', handleBoardClick);
+
     resetBtn.addEventListener('click', () => {
         if (result.textContent !== '') {
             result.textContent = '';
         }
         board = Gameboard();
-        game = GameController(board);
+        game = GameController(board, playerOne, playerTwo);
 
         boardDiv.addEventListener('click', handleBoardClick);
     });
